@@ -36,6 +36,12 @@ ScaffoldingReadMe.txt
 # NuGet Symbol Packages
 *.snupkg
 
+# Visual Studio
+.vs/
+.vscode/
+
+#Theme
+wwwroot/
 # Others
 ~$*
 *~
