@@ -14,5 +14,8 @@ namespace EShop.Models
         public string CategoryName { get; set; }
         [StringLength(50)]
         public string? CategoryDescription { get; set; }
+
+        public virtual ICollection<ProductModel> product { get; set; } = new List<ProductModel>();
+
     }
 }

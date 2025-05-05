@@ -1,0 +1,21 @@
+﻿@* Views/Shared/Components/Category/_CatagoryComponent.cshtml *@
+@model IEnumerable<EShop.ViewModels.CategoryViewModel>
+
+<div class="col-lg-12">
+    <div class="mb-3">
+        <h4>Categories</h4>
+        <ul class="list-unstyled categorie">
+            @foreach (var item in Model)
+            {
+                <li>
+                    <div class="d-flex justify-content-between fruite-name">
+                        <a asp-controller="HangHoa" asp-action="Index" asp-route-loai="@item.CategoryId">
+                            <i class="fas me-2"></i>@item.CategoryName
+                        </a>
+                        <span>(@item.Count)</span>
+                    </div>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
