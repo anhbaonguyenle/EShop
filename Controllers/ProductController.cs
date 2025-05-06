@@ -29,7 +29,7 @@ namespace EShop.Controllers
                 ProductDescription = p.ProductDescription,
                 ProductImage = p.ProductImage,
                 ProductPrice = p.ProductPrice
-            }).ToList();
+            });
             return View(result);
         }
 
@@ -43,7 +43,17 @@ namespace EShop.Controllers
                 TempData["Error"] = "Product not found";
                 return Redirect("/404");
             }
-            return View(productsdata);
+            var result = new ProductViewModel
+            {
+                ProductID = productsdata.ProductID,
+                ProductName = productsdata.ProductName,
+                CategoryID = productsdata.CategoryID,
+                CategoryName = productsdata.Category.CategoryName,
+                ProductDescription = productsdata.ProductDescription,
+                ProductImage = productsdata.ProductImage,
+                ProductPrice = productsdata.ProductPrice
+            };
+            return View(result);
         }
     }
 }

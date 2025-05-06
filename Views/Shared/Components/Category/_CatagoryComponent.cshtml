@@ -9,7 +9,7 @@
             {
                 <li>
                     <div class="d-flex justify-content-between fruite-name">
-                        <a asp-controller="HangHoa" asp-action="Index" asp-route-loai="@item.CategoryId">
+                        <a asp-controller="Product" asp-action="Index" asp-route-Category="@item.CategoryId">
                             <i class="fas me-2"></i>@item.CategoryName
                         </a>
                         <span>(@item.Count)</span>
