@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using EShop.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace EShop.Controllers
 {
@@ -30,6 +31,19 @@ namespace EShop.Controllers
                 ProductPrice = p.ProductPrice
             }).ToList();
             return View(result);
+        }
+
+        public IActionResult Detail(int id)
+        {
+            var productsdata = db.ProductModels
+                .Include(p => p.Category)
+                .SingleOrDefault(p => p.ProductID == id);
+            if (productsdata == null)
+            {
+                TempData["Error"] = "Product not found";
+                return Redirect("/404");
+            }
+            return View(productsdata);
         }
     }
 }

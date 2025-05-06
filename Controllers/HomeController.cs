@@ -22,6 +22,11 @@ namespace EShop.Controllers
         {
             return View();
         }
+        [Route("/404")]
+        public IActionResult NotFound()
+        {
+            return View("NotFound");
+        }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
