@@ -18,6 +18,8 @@ namespace EShop.Models
 
         [StringLength(50)]
         public string? AuthorDescription { get; set; }
+        [StringLength(1000)]
+        public string? AuthorLongDescription { get; set; }
         public string AuthorImage { get; set; }
         public virtual ICollection<ProductDetailModel> ProductDetails { get; set; } = new List<ProductDetailModel>();
     }

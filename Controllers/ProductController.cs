@@ -35,23 +35,30 @@ namespace EShop.Controllers
 
         public IActionResult Detail(int id)
         {
-            var productsdata = db.ProductModels
+            var productDetail = db.ProductDetailModels
+                .Include(p => p.Author)
                 .Include(p => p.Category)
-                .SingleOrDefault(p => p.ProductID == id);
-            if (productsdata == null)
+                .FirstOrDefault(p => p.ProductID == id);
+            if (productDetail == null)
             {
                 TempData["Error"] = "Product not found";
                 return Redirect("/404");
             }
-            var result = new ProductViewModel
+            var result = new ProductDetailViewModel
             {
-                ProductID = productsdata.ProductID,
-                ProductName = productsdata.ProductName,
-                CategoryID = productsdata.CategoryID,
-                CategoryName = productsdata.Category.CategoryName,
-                ProductDescription = productsdata.ProductDescription,
-                ProductImage = productsdata.ProductImage,
-                ProductPrice = productsdata.ProductPrice
+                ProductDetailID = productDetail.ProductDetailID,
+                ProductID = productDetail.ProductID,
+                ProductName = productDetail.ProductName,
+                AuthorId = productDetail.AuthorId,
+                AuthorName = productDetail.Author.AuthorName,
+                ProductLongDescription = productDetail.ProductLongDescription,
+                CategoryName = productDetail.Category.CategoryName,
+                ProductImage = productDetail.ProductImage,
+                ProductPrice = productDetail.ProductPrice,
+                ProductPriceSale = productDetail.ProductPriceSale,
+                ProductQuantity = productDetail.ProductQuantity,
+                Rate = productDetail.Rate,
+                SaleStatus = productDetail.SaleStatus
             };
             return View(result);
         }

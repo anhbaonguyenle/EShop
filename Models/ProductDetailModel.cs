@@ -40,6 +40,8 @@ namespace EShop.Models
         public double ProductPrice { get; set; }
         public double ProductPriceSale { get; set; }
         public int ProductQuantity { get; set; }
-        public float Rate { get; set; } // đổi chữ thường -> chữ hoa theo convention
+        public float Rate { get; set; }
+        public int SaleStatus{ get; set; } //1: sale, 0: not sale
     }
 }
+
