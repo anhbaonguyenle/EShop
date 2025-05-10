@@ -22,6 +22,30 @@ namespace EShop.Controllers
         {
             return View();
         }
+
+        public IActionResult Login()
+        {
+            return View();
+        }
+        [HttpPost]
+        public IActionResult Login(LoginViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var customer = db.CustomerModel.FirstOrDefault(c => c.CustomerUserName == model.CustommerUsername);
+                if (customer != null && BCrypt.Net.BCrypt.Verify(model.CustommerPassword, customer.CustomerPassword))
+                {
+                    HttpContext.Session.SetString("CustomerId", customer.CustomerUserName.ToString());
+                    HttpContext.Session.SetString("CustomerName", customer.CustomerFullName);
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Invalid email or password.");
+                }
+            }
+            return View(model);
+        }
         [HttpGet]
         public IActionResult Register()
         {
