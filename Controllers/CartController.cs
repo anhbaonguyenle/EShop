@@ -11,12 +11,11 @@ namespace EShop.Controllers
         {
             db = context;
         }
-        const string KEY = "CART";
         public List<CartViewModel> Cart 
         {
             get
             {
-                return HttpContext.Session.Get<List<CartViewModel>>(KEY) ?? new List<CartViewModel>();
+                return HttpContext.Session.Get<List<CartViewModel>>(Setting.CartKey) ?? new List<CartViewModel>();
             }     
         }
 
@@ -53,7 +52,7 @@ namespace EShop.Controllers
             {
                 item.ProductQuantity += quantity;
             }
-            HttpContext.Session.Set(KEY, cart);
+            HttpContext.Session.Set(Setting.CartKey, cart);
             return RedirectToAction("Index");
         }
         public IActionResult RemoveCart(int id, int quantity = 1)
@@ -63,7 +62,7 @@ namespace EShop.Controllers
             if(item != null)
             {
                 cart.Remove(item);
-                HttpContext.Session.Set(KEY, cart);
+                HttpContext.Session.Set(Setting.CartKey, cart);
             }
             return RedirectToAction("Index");
         }

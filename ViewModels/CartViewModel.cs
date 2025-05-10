@@ -9,4 +9,10 @@
         public int ProductQuantity { get; set; }
         public double ProductTotalPrice => ProductPrice * ProductQuantity;
     }
+
+    public class CartSupportViewModel
+    {
+        public int Quantity { get; set; }
+        public double TotalPrice { get; set; }
+    }
 }
