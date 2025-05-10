@@ -1,0 +1,84 @@
+﻿@model EShop.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <h1 class="mb-4">Register</h1>
+        <form asp-action="Register" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-md-12 col-lg-6">
+                    <div class="form-item w-100">
+                        <label asp-for="CustomerUserName" class="form-label my-3"></label><sup>*</sup>
+                        <input asp-for="CustomerUserName" class="form-control">
+                        <span asp-validation-for="CustomerUserName" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-12 col-lg-6">
+                    <label asp-for="CustomerPassword" class="form-label my-3"></label><sup>*</sup>
+                    <input asp-for="CustomerPassword" type="password" class="form-control">
+                    <span asp-validation-for="CustomerPassword" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-12 col-lg-6">
+                    <label asp-for="CustomerConfirmPassword" class="form-label my-3"></label><sup>*</sup>
+                    <input asp-for="CustomerConfirmPassword" type="password" class="form-control">
+                    <span asp-validation-for="CustomerConfirmPassword" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-item">
+                        <label class="form-label my-3" asp-for="CustomerFullName"></label><sup>*</sup>
+                        <input asp-for="CustomerFullName" class="form-control" />
+                        <span asp-validation-for="CustomerFullName" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-item">
+                        <label class="form-label my-3" asp-for="CustomerAddress"></label>
+                        <input asp-for="CustomerAddress" class="form-control" />
+                        <span asp-validation-for="CustomerAddress" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-item">
+                        <label class="form-label my-3" asp-for="CustomerPhone"></label><sup>*</sup>
+                        <input asp-for="CustomerPhone" class="form-control" />
+                        <span asp-validation-for="CustomerPhone" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-item">
+                        <label class="form-label my-3" asp-for="CustomerEmail"></label>
+                        <input asp-for="CustomerEmail" class="form-control" />
+                        <span asp-validation-for="CustomerEmail" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-item">
+                        <label class="form-label my-3" for="CusImage">Profile Image<sup>*</sup></label>
+                        <input type="file" name="CusImage" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Display success message if registration is successful -->
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success mt-3">
+                    @TempData["SuccessMessage"]
+                </div>
+            }
+
+            <div class="row g-4 text-center align-items-center justify-content-center pt-4">
+                <button type="submit" class="btn border-secondary py-3 px-4 text-uppercase w-100 text-primary">Register</button>
+            </div>
+        </form>
+    </div>
+</div>
