@@ -4,6 +4,11 @@ using EShop.ViewModels;
 using AutoMapper;
 using EShop.Helpers;
 using EShop.Models;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EShop.Controllers
 {
@@ -22,35 +27,71 @@ namespace EShop.Controllers
         {
             return View();
         }
-
-        public IActionResult Login()
+        #region Login
+        [HttpGet]
+        public IActionResult Login(string? ReturnUrl)
         {
+            ViewBag.ReturnUrl = ReturnUrl;
             return View();
+            
         }
         [HttpPost]
-        public IActionResult Login(LoginViewModel model)
+        public async Task<IActionResult> Login(LoginViewModel model, string? ReturnUrl)
         {
+            ViewBag.ReturnUrl = ReturnUrl;
             if (ModelState.IsValid)
             {
-                var customer = db.CustomerModel.FirstOrDefault(c => c.CustomerUserName == model.CustommerUsername);
+                var customer = db.CustomerModel.SingleOrDefault(c => c.CustomerUserName == model.CustommerUsername);
                 if (customer != null && BCrypt.Net.BCrypt.Verify(model.CustommerPassword, customer.CustomerPassword))
                 {
-                    HttpContext.Session.SetString("CustomerId", customer.CustomerUserName.ToString());
-                    HttpContext.Session.SetString("CustomerName", customer.CustomerFullName);
-                    return RedirectToAction("Index", "Home");
+                    var claims = new List<Claim> {
+                        new Claim(ClaimTypes.Email, customer.CustomerEmail),
+                        new Claim(ClaimTypes.Name, customer.CustomerFullName),
+                        new Claim("CustomerId", customer.CustomerUserName),
+                        new Claim(ClaimTypes.Role, "Customer")
+                    };
+
+                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+                    await HttpContext.SignInAsync(claimsPrincipal);
+                    if (Url.IsLocalUrl(ReturnUrl))
+                    {
+                        return Redirect(ReturnUrl);
+                    }
+                    else
+                    {
+                        return Redirect("/");
+                    }
                 }
                 else
                 {
-                    ModelState.AddModelError("", "Invalid email or password.");
+                    ModelState.AddModelError("Error", "Invalid username or password.");
                 }
             }
-            return View(model);
+            return View();
         }
+        #endregion
+        #region Profile
+        [Authorize]
+        public IActionResult Profile()
+        {
+            return View();
+        }
+        #endregion
+        #region Logout
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync();
+            return Redirect("/");
+        }
+        #endregion
+        #region Register
         [HttpGet]
         public IActionResult Register()
         {
             return View();
         }
+        [HttpPost]
         public IActionResult Register(RegisterViewModel model, IFormFile CusImage)
         {
             string imageFileURL = "CustomerDefault.png";
@@ -94,6 +135,7 @@ namespace EShop.Controllers
 
             return View(model);
         }
+        #endregion
 
     }
 }

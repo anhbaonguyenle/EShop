@@ -1,4 +1,5 @@
 using EShop.Helpers;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 namespace EShop
@@ -17,11 +18,17 @@ namespace EShop
 
             builder.Services.AddSession(options =>
             {
-                options.IdleTimeout = TimeSpan.FromSeconds(100);
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });
             builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = "/Customer/Login";
+                    options.AccessDeniedPath = "/Customer/AccessDenied";
+                });
             var app = builder.Build();
 
             if (!app.Environment.IsDevelopment())
@@ -35,6 +42,7 @@ namespace EShop
 
             app.UseRouting();
             app.UseSession();
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(

@@ -5,22 +5,25 @@
 <div class="container-fluid py-5">
     <div class="container py-5">
         <h1>Login</h1>
-        <form asp-action="Login" method="post">
+        <form asp-action="Login" method="post" asp-route-returnurl="@ViewBag.ReturnUrl"> 
+            <div class="text-danger" asp-asp-validation-summary="All"></div>
             <div class="row">
                 <div class="col-md-12 col-lg-6">
                     <div class="form-item w-100">
-                        <label asp-for="CustommerUsername" class="form-label my-3"></label><sup>*</sup>
-                        <input asp-for="CustommerUsername" class="form-control">
-                        <span asp-validation-for="CustommerUsername" class="text-danger"></span>
+                        <label asp-for="@Model.CustommerUsername" class="form-label my-3"></label><sup>*</sup>
+                        <input asp-for="@Model.CustommerUsername" class="form-control">
+                        <span asp-validation-for="@Model.CustommerUsername" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="col-md-12 col-lg-6">
-                    <label asp-for="CustommerPassword" class="form-label my-3"></label><sup>*</sup>
-                    <input asp-for="CustommerPassword" type="password" class="form-control">
-                    <span asp-validation-for="CustommerPassword" class="text-danger"></span>
+                    <label asp-for="@Model.CustommerPassword" class="form-label my-3"></label><sup>*</sup>
+                    <input asp-for="@Model.CustommerPassword" type="password" class="form-control">
+                    <span asp-validation-for="@Model.CustommerPassword" class="text-danger"></span>
                 </div>
                 <div class="col-md-12 mt-3">
                     <button type="submit" class="btn btn-primary">Login</button>
+                    <p>Create Account: </p>
+                    <a asp-controller="Customer" asp-action="Register" class="btn btn-secondary">Register</a>
                 </div>
             </div>
         </form>
