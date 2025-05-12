@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using EShop.Helpers;
 using EShop.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using EShop.Models;
 namespace EShop.Controllers
 {
     public class CartController : Controller
@@ -18,7 +20,7 @@ namespace EShop.Controllers
                 return HttpContext.Session.Get<List<CartViewModel>>(Setting.CartKey) ?? new List<CartViewModel>();
             }     
         }
-
+        #region CartPage
         public IActionResult Index()
         {
             return View(Cart);
@@ -66,5 +68,53 @@ namespace EShop.Controllers
             }
             return RedirectToAction("Index");
         }
+        #endregion
+        #region Checkout
+        [Authorize]
+        [HttpGet]
+        public IActionResult Checkout()
+        {
+            var cart = Cart;
+            if (cart.Count == 0)
+            {
+                TempData["Error"] = "Your cart is empty";
+                return Redirect("/");
+            }
+
+            return View(Cart);
+        }
+        [Authorize]
+        [HttpPost]
+        public IActionResult Checkout(CheckoutViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Please fill in all required fields";
+                return Redirect("/Cart/Checkout");
+            }
+            else
+            {
+                var cusID = HttpContext.User.Claims.SingleOrDefault(p => p.Type == Setting.Claim_UserId);
+                var cus = new CustomerModel();
+
+                //var bill = new BillModel
+                //{
+                //    CustomerUserName = cusID 
+
+                //};
+                if (cusID == null)
+                {
+                    TempData["Error"] = "Customer not found";
+                    return Redirect("/404");
+                }
+                else
+                {
+
+                }
+            }
+                return View(Cart);
+        }
+        #endregion
+
     }
 }

@@ -47,7 +47,7 @@ namespace EShop.Controllers
                     var claims = new List<Claim> {
                         new Claim(ClaimTypes.Email, customer.CustomerEmail),
                         new Claim(ClaimTypes.Name, customer.CustomerFullName),
-                        new Claim("CustomerId", customer.CustomerUserName),
+                        new Claim(Setting.Claim_UserId, customer.CustomerUserName),
                         new Claim(ClaimTypes.Role, "Customer")
                     };
 

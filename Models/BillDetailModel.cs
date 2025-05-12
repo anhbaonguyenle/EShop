@@ -14,7 +14,6 @@ namespace EShop.Models
         public double ProductPrice { get; set; }
         public int ProductQuantity { get; set; }
         public virtual BillModel BillIdNavigation { get; set; } = null!;
-
         public virtual ProductModel ProductIDNavigation { get; set; } = null!;
 
     }

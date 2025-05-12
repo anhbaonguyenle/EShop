@@ -19,6 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Demo\Images\" />
+    <Folder Include="Demo\Videos\" />
     <Folder Include="Views\Shared\Components\Search\" />
   </ItemGroup>
 
