@@ -17,6 +17,8 @@ namespace EShop
         public virtual DbSet<CategoryModel> CategoryModels { get; set; }
         public virtual DbSet<AuthorModel> AuthorModels { get; set; }
         public virtual DbSet<CustomerModel> CustomerModel { get; set; }
+        public virtual DbSet<BillModel> BillModel { get; set; }
+        public virtual DbSet<BillDetailModel> BillDetailModel { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

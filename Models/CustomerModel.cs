@@ -27,7 +27,6 @@ namespace EShop.Models
         [StringLength(50)]
         public string? CustomerEmail { get; set; }
         [Required]
-        [Range(1000000000, 9999999999)]
         public int CustomerPhone { get; set; }
     }
 }
