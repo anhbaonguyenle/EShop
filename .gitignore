@@ -40,8 +40,6 @@ ScaffoldingReadMe.txt
 .vs/
 .vscode/
 
-#Theme
-wwwroot/
 # Others
 ~$*
 *~
