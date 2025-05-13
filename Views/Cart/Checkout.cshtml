@@ -1,16 +1,16 @@
 ﻿@model IEnumerable<EShop.ViewModels.CartViewModel>
 @{
-    ViewData["Title"] = "Checkout";
+	ViewData["Title"] = "Checkout";
 }
 
 <!-- Single Page Header start -->
 <div class="container-fluid page-header py-5">
-    <h1 class="text-center text-white display-6">Checkout</h1>
-    <ol class="breadcrumb justify-content-center mb-0">
-        <li class="breadcrumb-item"><a href="/">Home</a></li>
-        <li class="breadcrumb-item"><a href="/Cart">Cart</a></li>
-        <li class="breadcrumb-item active text-white">Checkout</li>
-    </ol>
+	<h1 class="text-center text-white display-6">Checkout</h1>
+	<ol class="breadcrumb justify-content-center mb-0">
+		<li class="breadcrumb-item"><a href="/">Home</a></li>
+		<li class="breadcrumb-item"><a href="/Cart">Cart</a></li>
+		<li class="breadcrumb-item active text-white">Checkout</li>
+	</ol>
 </div>
 <!-- Single Page Header End -->
 <!-- Checkout Page Start -->
@@ -164,3 +164,17 @@
 	</div>
 </div>
 <!-- Checkout Page End -->
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            $('#CheckCustomer').change(function () {
+                if ($(this).is(":checked")) {
+                    $(".delivery-info").addClass("d-none");
+                } else {
+                    $(".delivery-info").removeClass("d-none");
+                }
+            });
+        });
+    </script>
+}
