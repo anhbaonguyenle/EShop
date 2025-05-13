@@ -4,6 +4,7 @@ using EShop.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using EShop.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
 namespace EShop.Controllers
 {
     public class CartController : Controller
@@ -14,23 +15,23 @@ namespace EShop.Controllers
         {
             db = context;
         }
-        public List<CartViewModel> Cart 
+        public List<CartViewModel> Cart
         {
             get
             {
                 return HttpContext.Session.Get<List<CartViewModel>>(Setting.CartKey) ?? new List<CartViewModel>();
-            }     
+            }
         }
         #region CartPage
         public IActionResult Index()
         {
             return View(Cart);
         }
-        public IActionResult AddtoCart(int id, int quantity =1)
+        public IActionResult AddtoCart(int id, int quantity = 1)
         {
             var cart = Cart;
             var item = cart.SingleOrDefault(p => p.ProductID == id);
-            if(item == null)
+            if (item == null)
             {
                 var product = db.ProductDetailModels.SingleOrDefault(p => p.ProductID == id);
                 if (product == null)
@@ -62,7 +63,7 @@ namespace EShop.Controllers
         {
             var cart = Cart;
             var item = cart.SingleOrDefault(p => p.ProductID == id);
-            if(item != null)
+            if (item != null)
             {
                 cart.Remove(item);
                 HttpContext.Session.Set(Setting.CartKey, cart);
@@ -88,81 +89,63 @@ namespace EShop.Controllers
         [HttpPost]
         public IActionResult Checkout(CheckoutViewModel model)
         {
-
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                TempData["Error"] = "Please fill in all required fields";
-                return Redirect("/Cart/Checkout");
-            }
-            else
-            {
-                var cusID = HttpContext.User.Claims.SingleOrDefault(p => p.Type == Setting.Claim_UserId).Value;
-                var cus = new CustomerModel();
+                var customerId = HttpContext.User.Claims.SingleOrDefault(p => p.Type == Setting.Claim_UserId).Value;
+                var customer = new CustomerModel();
                 if (model.CheckCustomer)
                 {
-                    var customer = db.CustomerModel.SingleOrDefault(cus => cus.CustomerUserName == cusID);
-                    if (!string.IsNullOrEmpty(model.PhoneNumber))
-                    {
-                        if (int.TryParse(model.PhoneNumber, out int parsedPhone))
-                        {
-                            cus.CustomerPhone = parsedPhone;
-                        }
-                    }
+                    customer = db.CustomerModel.SingleOrDefault(kh => kh.CustomerUserName == customerId);
                 }
 
                 var bill = new BillModel
                 {
-                    CustomerUserName = cusID,
-                    CustomerFullName = model.Fullname ?? cus.CustomerFullName,
-                    CustomerAddress = model.Address ?? cus.CustomerAddress,
-                    CustomerPhone = cus != null ? cus.CustomerPhone : 0,
+                    CustomerUserName = customerId,
+                    CustomerFullName = model.Fullname ?? customer.CustomerFullName,
+                    CustomerAddress = model.Address ?? customer.CustomerAddress,
+                    CustomerPhone = model.PhoneNumber ?? customer.CustomerPhone,
                     OrderDate = DateTime.Now,
-                    DeliveryDate = null,
-                    PaymentMethods = "Cash on delivery",
-                    ShippingWay = "Standard shipping",
-                    ShippingFee = 0,
+                    DeliveryDate = DateTime.Now,
+                    PaymentMethods = "COD",
+                    ShippingWay = "GRAB",
                     Status = 0,
                     Note = model.Note
                 };
-                db.Database.BeginTransaction();
-                try
-                {
-                    db.Database.CommitTransaction();
-                    db.Add(bill);
-                    db.SaveChanges();
 
-                    var billDetail = new List<BillDetailModel>();
-                    foreach (var item in Cart)
+                using (var transaction = db.Database.BeginTransaction())
+                {
+                    try
                     {
-                        billDetail.Add(new BillDetailModel
+                        db.Add(bill);
+                        db.SaveChanges();
+
+                        var billDetails = Cart.Select(item => new BillDetailModel
                         {
                             BillId = bill.BillId,
                             ProductID = item.ProductID,
                             ProductPrice = item.ProductPrice,
                             ProductQuantity = item.ProductQuantity
-                        });
-                    }
-                    db.SaveChanges();
-                    HttpContext.Session.Set<List<CartViewModel>>(Setting.CartKey, new List<CartViewModel>());
-                    return View("Success");
-                }
-                catch
-                {
-                    db.Database.RollbackTransaction();
-                }
-                if (cusID == null)
-                {
-                    TempData["Error"] = "Customer not found";
-                    return Redirect("/404");
-                }
-                else
-                {
+                        }).ToList();
 
+                        db.AddRange(billDetails);
+                        db.SaveChanges();
+
+                        transaction.Commit();
+
+                        HttpContext.Session.Set<List<CartViewModel>>(Setting.CartKey, new List<CartViewModel>());
+
+                        return View("Success");
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        ModelState.AddModelError("", "Đã xảy ra lỗi khi xử lý đơn hàng. Vui lòng thử lại.");
+                        return View(Cart);
+                    }
                 }
             }
             return View(Cart);
         }
         #endregion
-
     }
 }

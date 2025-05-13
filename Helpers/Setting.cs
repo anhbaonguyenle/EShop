@@ -3,6 +3,6 @@
     public class Setting
     {
         public static string CartKey = "cart";
-        public static string Claim_UserId = "CustomerId";
+        public static string Claim_UserId = "CustomerUserName";
     }
 }
