@@ -92,49 +92,46 @@ namespace EShop.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult Register(RegisterViewModel model, IFormFile CusImage)
+        public IActionResult Register(RegisterViewModel model)
         {
-            string imageFileURL = "CustomerDefault.png";
-
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
-                {
-                    if (model.CustomerPassword != model.CustomerConfirmPassword)
-                    {
-                        ModelState.AddModelError("", "Passwords do not match.");
-                        return View(model);
-                    }
-
-                    string hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.CustomerPassword);
-
-                    var customer = _mapper.Map<CustomerModel>(model);
-                    customer.CustomerPassword = hashedPassword;
-
-                    if (CusImage != null && CusImage.Length > 0)
-                    {
-                        string filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", CusImage.FileName);
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            CusImage.CopyTo(stream);
-                        }
-                        imageFileURL = CusImage.FileName;
-                    }
-                    customer.CustomerImage = imageFileURL;
-
-                    db.CustomerModel.Add(customer);
-                    db.SaveChanges();
-
-                    return RedirectToAction("Index", "Home");
-                }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError("", "An error occurred while registering: " + ex.Message);
-                }
+                return View(model);
             }
 
-            return View(model);
+            if (model.CustomerPassword != model.CustomerConfirmPassword)
+            {
+                ModelState.AddModelError("CustomerConfirmPassword", "Passwords do not match.");
+                return View(model);
+            }
+
+            var existingCustomer = db.CustomerModel.FirstOrDefault(c => c.CustomerUserName == model.CustomerUserName);
+            if (existingCustomer != null)
+            {
+                ModelState.AddModelError("CustomerUserName", "Username is already taken.");
+                return View(model);
+            }
+
+            try
+            {
+                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.CustomerPassword);
+
+                var customer = _mapper.Map<CustomerModel>(model);
+                customer.CustomerPassword = hashedPassword;
+
+                db.CustomerModel.Add(customer);
+                db.SaveChanges();
+
+                TempData["SuccessMessage"] = "Registration successful! Please log in.";
+                return RedirectToAction("Login", "Customer");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"An error occurred while registering: {ex.Message}");
+                return View(model);
+            }
         }
+
         #endregion
 
     }

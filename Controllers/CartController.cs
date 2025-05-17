@@ -112,14 +112,15 @@ namespace EShop.Controllers
                     Note = model.Note
                 };
 
-                using (var transaction = db.Database.BeginTransaction())
+                db.Database.BeginTransaction();
+                try
                 {
-                    try
-                    {
-                        db.Add(bill);
-                        db.SaveChanges();
+                    db.Database.CommitTransaction();
+                    db.Add(bill);
+                    db.SaveChanges();
 
-                        var billDetails = Cart.Select(item => new BillDetailModel
+
+                    var billDetails = Cart.Select(item => new BillDetailModel
                         {
                             BillId = bill.BillId,
                             ProductID = item.ProductID,
@@ -127,21 +128,16 @@ namespace EShop.Controllers
                             ProductQuantity = item.ProductQuantity
                         }).ToList();
 
-                        db.AddRange(billDetails);
-                        db.SaveChanges();
+                    db.AddRange(billDetails);
+                    db.SaveChanges();
 
-                        transaction.Commit();
+                    HttpContext.Session.Set<List<CartViewModel>>(Setting.CartKey, new List<CartViewModel>());
 
-                        HttpContext.Session.Set<List<CartViewModel>>(Setting.CartKey, new List<CartViewModel>());
-
-                        return View("Success");
-                    }
-                    catch (Exception ex)
-                    {
-                        transaction.Rollback();
-                        ModelState.AddModelError("", "Đã xảy ra lỗi khi xử lý đơn hàng. Vui lòng thử lại.");
-                        return View(Cart);
-                    }
+                    return View("Success");
+                }
+                catch
+                {
+                    db.Database.RollbackTransaction();
                 }
             }
             return View(Cart);

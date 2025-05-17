@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
-using AutoMapper;
+﻿using AutoMapper;
 using EShop.ViewModels;
 using EShop.Models;
 

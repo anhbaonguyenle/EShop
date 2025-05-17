@@ -19,7 +19,7 @@ namespace EShop.Models
 
         public string? CustomerAddress { get; set; } = null!;
 
-        public int CustomerPhone { get; set; }
+        public string? CustomerPhone { get; set; }
 
         public string PaymentMethods { get; set; } = null!;
 

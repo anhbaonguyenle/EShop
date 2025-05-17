@@ -26,7 +26,6 @@ namespace EShop.Models
 
         [StringLength(50)]
         public string? CustomerEmail { get; set; }
-        [Required]
-        public int CustomerPhone { get; set; }
+        public string? CustomerPhone { get; set; }
     }
 }

@@ -14,11 +14,9 @@ namespace EShop.ViewModels
 
         public string? CustomerAddress { get; set; }
 
-        public string? CustomerImage { get; set; }
-
         public string? CustomerEmail { get; set; }
 
-        public int CustomerPhone { get; set; }
+        public string? CustomerPhone { get; set; }
 
     }
 }
