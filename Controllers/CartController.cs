@@ -15,13 +15,7 @@ namespace EShop.Controllers
         {
             db = context;
         }
-        public List<CartViewModel> Cart
-        {
-            get
-            {
-                return HttpContext.Session.Get<List<CartViewModel>>(Setting.CartKey) ?? new List<CartViewModel>();
-            }
-        }
+        public List<CartViewModel> Cart => HttpContext.Session.Get<List<CartViewModel>>(Setting.CartKey) ?? new List<CartViewModel>();
         #region CartPage
         public IActionResult Index()
         {
@@ -76,71 +70,96 @@ namespace EShop.Controllers
         [HttpGet]
         public IActionResult Checkout()
         {
-            var cart = Cart;
-            if (cart.Count == 0)
-            {
-                TempData["Error"] = "Your cart is empty";
+            if (Cart.Count == 0)
                 return Redirect("/");
-            }
 
-            return View(Cart);
+            ViewBag.Cart = Cart;
+            return View(new CheckoutViewModel());
         }
+
         [Authorize]
         [HttpPost]
         public IActionResult Checkout(CheckoutViewModel model)
         {
-            if (ModelState.IsValid)
+            ViewBag.Cart = Cart;
+
+            if (Cart.Count == 0)
             {
-                var customerId = HttpContext.User.Claims.SingleOrDefault(p => p.Type == Setting.Claim_UserId).Value;
-                var customer = new CustomerModel();
-                if (model.CheckCustomer)
-                {
-                    customer = db.CustomerModel.SingleOrDefault(kh => kh.CustomerUserName == customerId);
-                }
+                ModelState.AddModelError("", "Your cart is empty.");
+                return View(model);
+            }
 
-                var bill = new BillModel
-                {
-                    CustomerUserName = customerId,
-                    CustomerFullName = model.Fullname ?? customer.CustomerFullName,
-                    CustomerAddress = model.Address ?? customer.CustomerAddress,
-                    CustomerPhone = model.PhoneNumber ?? customer.CustomerPhone,
-                    OrderDate = DateTime.Now,
-                    DeliveryDate = DateTime.Now,
-                    PaymentMethods = "COD",
-                    ShippingWay = "GRAB",
-                    Status = 0,
-                    Note = model.Note
-                };
+            var customerId = HttpContext.User.Claims.SingleOrDefault(p => p.Type == Setting.Claim_UserId)?.Value;
+            CustomerModel? customer = null;
+            if (model.CheckCustomer && !string.IsNullOrWhiteSpace(customerId))
+            {
+                customer = db.CustomerModel.SingleOrDefault(kh => kh.CustomerUserName == customerId);
+            }
 
-                db.Database.BeginTransaction();
+            // Validate and resolve required fields
+            var fullName = !string.IsNullOrWhiteSpace(model.Fullname) ? model.Fullname : customer?.CustomerFullName;
+            var address = !string.IsNullOrWhiteSpace(model.Address) ? model.Address : customer?.CustomerAddress;
+            var phone = !string.IsNullOrWhiteSpace(model.PhoneNumber) ? model.PhoneNumber : customer?.CustomerPhone;
+
+            if (string.IsNullOrWhiteSpace(fullName))
+                ModelState.AddModelError("Fullname", "Full name is required.");
+            if (string.IsNullOrWhiteSpace(address))
+                ModelState.AddModelError("Address", "Address is required.");
+            if (string.IsNullOrWhiteSpace(phone))
+                ModelState.AddModelError("PhoneNumber", "Phone number is required.");
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var bill = new BillModel
+            {
+                CustomerUserName = customerId,
+                CustomerFullName = fullName,
+                CustomerAddress = address,
+                CustomerPhone = phone,
+                OrderDate = DateTime.Now,
+                DeliveryDate = DateTime.Now,
+                PaymentMethods = "COD",
+                ShippingWay = "GRAB",
+                Status = 0,
+                Note = model.Note
+            };
+
+            using (var transaction = db.Database.BeginTransaction())
+            {
                 try
                 {
-                    db.Database.CommitTransaction();
-                    db.Add(bill);
+                    db.BillModel.Add(bill);
                     db.SaveChanges();
-
 
                     var billDetails = Cart.Select(item => new BillDetailModel
-                        {
-                            BillId = bill.BillId,
-                            ProductID = item.ProductID,
-                            ProductPrice = item.ProductPrice,
-                            ProductQuantity = item.ProductQuantity
-                        }).ToList();
+                    {
+                        BillId = bill.BillId,
+                        ProductID = item.ProductID,
+                        ProductPrice = item.ProductPrice,
+                        ProductQuantity = item.ProductQuantity
+                    }).ToList();
 
-                    db.AddRange(billDetails);
+                    db.BillDetailModel.AddRange(billDetails);
                     db.SaveChanges();
 
+                    transaction.Commit();
+
+                    // Clear cart after successful order
                     HttpContext.Session.Set<List<CartViewModel>>(Setting.CartKey, new List<CartViewModel>());
 
                     return View("Success");
                 }
-                catch
+                catch (Exception)
                 {
-                    db.Database.RollbackTransaction();
+                    transaction.Rollback();
+                    ModelState.AddModelError("", "An error occurred while processing your order. Please try again.");
+                    ViewBag.Cart = Cart;
+                    return View(model);
                 }
             }
-            return View(Cart);
         }
         #endregion
     }

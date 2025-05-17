@@ -4,6 +4,7 @@ using EShop;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EShop.Migrations
 {
     [DbContext(typeof(EShopContext))]
-    partial class EShopContextModelSnapshot : ModelSnapshot
+    [Migration("20250517172914_FixBillCustomerNavigation")]
+    partial class FixBillCustomerNavigation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,7 +70,13 @@ namespace EShop.Migrations
                     b.Property<int>("BillId")
                         .HasColumnType("int");
 
+                    b.Property<int>("BillIdNavigationBillId")
+                        .HasColumnType("int");
+
                     b.Property<int>("ProductID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductIDNavigationProductID")
                         .HasColumnType("int");
 
                     b.Property<double>("ProductPrice")
@@ -78,9 +87,9 @@ namespace EShop.Migrations
 
                     b.HasKey("BillDetailId");
 
-                    b.HasIndex("BillId");
+                    b.HasIndex("BillIdNavigationBillId");
 
-                    b.HasIndex("ProductID");
+                    b.HasIndex("ProductIDNavigationProductID");
 
                     b.ToTable("BillDetail");
                 });
@@ -288,21 +297,21 @@ namespace EShop.Migrations
 
             modelBuilder.Entity("EShop.Models.BillDetailModel", b =>
                 {
-                    b.HasOne("EShop.Models.BillModel", "Bill")
+                    b.HasOne("EShop.Models.BillModel", "BillIdNavigation")
                         .WithMany("BillDetails")
-                        .HasForeignKey("BillId")
+                        .HasForeignKey("BillIdNavigationBillId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("EShop.Models.ProductModel", "Product")
+                    b.HasOne("EShop.Models.ProductModel", "ProductIDNavigation")
                         .WithMany()
-                        .HasForeignKey("ProductID")
+                        .HasForeignKey("ProductIDNavigationProductID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Bill");
+                    b.Navigation("BillIdNavigation");
 
-                    b.Navigation("Product");
+                    b.Navigation("ProductIDNavigation");
                 });
 
             modelBuilder.Entity("EShop.Models.BillModel", b =>
