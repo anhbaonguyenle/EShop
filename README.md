@@ -16,6 +16,6 @@ This project is powered by SQL Server for robust data management and follows the
 ## 🏛️ Database Diagram
 
 Here’s the database structure for **EShop**:
-
 ![Database Diagram](Demo/Images/EShopDatabaseDiagram.png)
+
 
